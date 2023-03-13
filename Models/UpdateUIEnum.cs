@@ -1,6 +1,6 @@
 ﻿namespace CSharpWpfChatGPT.Models
 {
-    public enum UIUpdateEnum
+    public enum UpdateUIEnum
     {
         SetFocusToChatInput,
         SetupMessageListViewScrollViewer,

@@ -47,7 +47,7 @@ namespace CSharpWpfChatGPT.Services
         {
             ChatGPTCreateImageRequest imageRequest = new()
             {
-                Prompt = prompt, //"A sail boat",
+                Prompt = prompt,
                 Size = CreatedImageSize.Size1024,
                 ResponseFormat = CreatedImageFormat.Base64
             };

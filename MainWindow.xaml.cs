@@ -22,11 +22,12 @@ namespace CSharpWpfChatGPT
         private ScrollViewer? _messageListViewScrollViewer;
         private ContextMenu _messageContextMenu;
 
-        public MainWindow(string openaiApiKey)
+        public MainWindow(ChatViewModel chatViewModel)
         {
             InitializeComponent();
 
-            DataContext = _chatViewModel = new ChatViewModel(openaiApiKey, (uiUpdateEnum) => UpdateUI(uiUpdateEnum));
+            DataContext = _chatViewModel = chatViewModel;
+            _chatViewModel.UpdateUIAction = UpdateUI;
             Loaded += MainWindow_Loaded;
             PreviewKeyDown += MainWindow_PreviewKeyDown;
             ChatListView.PreviewMouseRightButtonUp += ChatListView_PreviewMouseRightButtonUp;
@@ -38,14 +39,14 @@ namespace CSharpWpfChatGPT
         }
 
         // Update UI from ChatViewModel
-        private void UpdateUI(UIUpdateEnum uiUpdateEnum)
+        private void UpdateUI(UpdateUIEnum updateUIEnum)
         {
-            switch (uiUpdateEnum)
+            switch (updateUIEnum)
             {
-                case UIUpdateEnum.SetFocusToChatInput:
+                case UpdateUIEnum.SetFocusToChatInput:
                     ChatInputTextBox.Focus();
                     break;
-                case UIUpdateEnum.SetupMessageListViewScrollViewer:
+                case UpdateUIEnum.SetupMessageListViewScrollViewer:
                     SetupMessageListViewScrollViewer();
                     break;
             }
@@ -62,8 +63,7 @@ namespace CSharpWpfChatGPT
         private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {            
             if (e.Key == Key.Up || e.Key == Key.Down)
-            {
-                // We know the names of arm and rotor TextBoxes on the AlignmentPage, and if we are in either of them, ignore this KeyDown
+            {                
                 TextBox? inputTextBox = Keyboard.FocusedElement as TextBox;
                 if (inputTextBox?.Name == "ChatInputTextBox")
                 {

@@ -38,7 +38,7 @@
                           IsChecked="{Binding IsStreamingMode}" FontWeight="SemiBold" VerticalAlignment="Top" Margin="0,15,0,0" />
                 <ui:AppBarSeparator Margin="0,10,0,0" />
                 <ui:SimpleStackPanel Orientation="Horizontal">
-                    <TextBox Text="Ask ChatGPT like talking to a person one topic per chat" FontSize="20"
+                    <TextBox Text="Ask ChatGPT like talking to a person, one topic per chat" FontSize="20"
                         FontWeight="SemiBold" IsReadOnly="True" HorizontalAlignment="Left" VerticalAlignment="Center" 
                         Foreground="#FF0078D4" Background="Transparent" BorderThickness="0" Margin="0,5,0,0" />
                 </ui:SimpleStackPanel>
@@ -161,7 +161,7 @@
             <Button Grid.Column="1" Content="Image" ToolTip="Create an image by a name"
                     Command="{Binding CreateImageCommand}" Style="{DynamicResource AccentButtonStyle}"
                     IsEnabled="{Binding IsCommandNotBusy}" Height="40" 
-                    FontSize="20" Padding="10,0" Margin="2,8,10,5"/>
+                    FontSize="20" Padding="10,0,10,3" Margin="2,8,10,5"/>
             <Image Grid.Row="1" Grid.ColumnSpan="2" Source="{Binding ResultImage, TargetNullValue={x:Null}}" VerticalAlignment="Top"
                    MaxWidth="600" MaxHeight="400" Margin="10,10,10,0" />
         </Grid>
@@ -240,35 +240,7 @@
 
             <StackPanel Grid.Column="1" Orientation="Horizontal">
                 <Button Content="Send" Command="{Binding SendCommand}" Style="{DynamicResource AccentButtonStyle}"
-                        Height="36" FontSize="20" Padding="10,0" Margin="2,2,0,0">
-                    <!--<Button.Style>
-                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource AccentButtonStyle}">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type Button}">
-                                        <Border Background="{TemplateBinding Background}">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Setter Property="Width" Value="80" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Path=IsSendCommandBusy}" Value="True">
-                                    <Setter Property="FontStyle" Value="Italic" />
-                                    <Setter Property="FontWeight" Value="SemiBold" />
-                                    <Setter Property="Foreground" Value="Black" />
-                                    <Setter Property="Background" Value="Red" />
-                                    <Setter Property="FontSize" Value="20" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsSendCommandBusy}" Value="False">
-                                    <Setter Property="Background" Value="#990078D4" />
-                                    <Setter Property="FontSize" Value="20" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>-->
-                </Button>
+                        Height="36" FontSize="20" Padding="10,0,10,3" Margin="3,2,0,0" />
             </StackPanel>
         </Grid>
 

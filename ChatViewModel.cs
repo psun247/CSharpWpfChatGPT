@@ -22,16 +22,14 @@ namespace CSharpWpfChatGPT
         private readonly char[] _StartTokensToTrim = new char[] { '?', '\n', ' ' };
         private readonly string[] _StartTokensToSkip = new string[] { "?", " ", "Bot", ":", "", "\n" };
 
-        private Action<UIUpdateEnum> _uiUpdateAction;
         private WhetstoneChatGPTService _chatGPTService;
         private ChatHistory _chatHistory;
         private List<string> _chatInputList;
         private int _chatInputListIndex;
 
-        public ChatViewModel(string openaiApiKey, Action<UIUpdateEnum> uiUpdateAction)
+        public ChatViewModel(WhetstoneChatGPTService chatGPTService)
         {
-            _uiUpdateAction = uiUpdateAction;
-            _chatGPTService = new WhetstoneChatGPTService(openaiApiKey);
+            _chatGPTService = chatGPTService;
             _chatHistory = new ChatHistory();
             _chatHistory.AddChat("New Chat");
             ChatList = new ObservableCollection<Chat>(_chatHistory.ChatList);
@@ -40,6 +38,7 @@ namespace CSharpWpfChatGPT
             _chatInputListIndex = -1;
         }
 
+        public Action<UpdateUIEnum>? UpdateUIAction { get; set; }
         public bool IsCommandNotBusy => !_isCommandBusy;
         [ObservableProperty]
         private bool _isCommandBusy;
@@ -82,7 +81,7 @@ namespace CSharpWpfChatGPT
                 Chat newChat = _chatHistory.AddNewChat();
                 ChatList.Add(newChat);
                 SelectedChat = newChat;
-                _uiUpdateAction.Invoke(UIUpdateEnum.SetFocusToChatInput);
+                UpdateUIAction?.Invoke(UpdateUIEnum.SetFocusToChatInput);
 
                 StatusMessage = "'New Chat' has been added and selected";
             }
@@ -242,7 +241,7 @@ namespace CSharpWpfChatGPT
             SetCommandBusy(false, isSendCommand: true);
 
             // Always set focus to ChatInput after Send()
-            _uiUpdateAction.Invoke(UIUpdateEnum.SetFocusToChatInput);
+            UpdateUIAction?.Invoke(UpdateUIEnum.SetFocusToChatInput);
         }
 
         private bool ValidateInput(string input, out string prompt)
@@ -444,7 +443,7 @@ namespace CSharpWpfChatGPT
             if (value != null)
             {
                 // Re-setup on selected chat changed
-                _uiUpdateAction.Invoke(UIUpdateEnum.SetupMessageListViewScrollViewer);
+                UpdateUIAction?.Invoke(UpdateUIEnum.SetupMessageListViewScrollViewer);
             }
         }
     }

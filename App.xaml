@@ -12,12 +12,6 @@
                             <SolidColorBrush x:Key="AppContentBackgroundBrush" Color="{StaticResource SystemAltHighColor}" />
                             <SolidColorBrush x:Key="CustomThemeBrush" Color="Red" />
                         </ResourceDictionary>
-
-                        <!--<ResourceDictionary x:Key="Dark" ui:ThemeDictionary.Key="Dark">
-                            <SolidColorBrush x:Key="AppBackgroundBrush" Color="#FF232323" />
-                            <SolidColorBrush x:Key="AppContentBackgroundBrush" Color="#FF282828" />
-                            <SolidColorBrush x:Key="CustomThemeBrush" Color="Yellow" />
-                        </ResourceDictionary>-->
                     </ui:ThemeResources.ThemeDictionaries>
                 </ui:ThemeResources>
 
