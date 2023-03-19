@@ -1,6 +1,8 @@
 # C# WPF ChatGPT
 C# WPF app that mimics ChatGPT website UI
 
+![Application screenshot with one chat](https://github.com/psun247/CSharpWpfChatGPT/commit/e260488a813019efef800b59235ebcb9f44e56a6)
+
 # Setup
 Create an Open AI account to obtain an API key:
 https://platform.openai.com/account/api-keys
