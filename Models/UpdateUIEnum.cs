@@ -4,5 +4,6 @@
     {
         SetFocusToChatInput,
         SetupMessageListViewScrollViewer,
+        MessageListViewScrollToBottom,
     }
 }

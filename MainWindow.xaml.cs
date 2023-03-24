@@ -7,7 +7,7 @@ using ModernWpf.Controls;
 using CSharpWpfChatGPT.Models;
 
 namespace CSharpWpfChatGPT
-{   
+{
     public partial class MainWindow : Window
     {
         private const string _NewChat = "New";
@@ -49,6 +49,9 @@ namespace CSharpWpfChatGPT
                 case UpdateUIEnum.SetupMessageListViewScrollViewer:
                     SetupMessageListViewScrollViewer();
                     break;
+                case UpdateUIEnum.MessageListViewScrollToBottom:
+                    _messageListViewScrollViewer?.ScrollToBottom();
+                    break;
             }
         }
 
@@ -61,9 +64,10 @@ namespace CSharpWpfChatGPT
         }
 
         private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
-        {            
-            if (e.Key == Key.Up || e.Key == Key.Down)
-            {                
+        {
+            // Use CTRL+Up/Down to allow Up/Down alone for multiple lines in ChatInputTextBox
+            if ((e.Key == Key.Up || e.Key == Key.Down) && (e.KeyboardDevice.Modifiers & ModifierKeys.Control) != 0)
+            {
                 TextBox? inputTextBox = Keyboard.FocusedElement as TextBox;
                 if (inputTextBox?.Name == "ChatInputTextBox")
                 {
@@ -217,7 +221,7 @@ namespace CSharpWpfChatGPT
 
             _messageContextMenu.IsOpen = true;
         }
-        
+
         private void ChatMenuOnClick(object sender, RoutedEventArgs args)
         {
             MenuItem? mi = args.Source as MenuItem;

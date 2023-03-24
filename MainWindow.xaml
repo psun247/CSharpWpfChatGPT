@@ -21,12 +21,11 @@
             <ColumnDefinition Width="240" MinWidth="200" MaxWidth="400" />
             <ColumnDefinition Width="*" MinWidth="100" />
             <ColumnDefinition Width="Auto" />
-            <!--Must be Auto and no MinWidth for Image Expand/Collapse button to work-->
             <ColumnDefinition Width="20" />
         </Grid.ColumnDefinitions>
 
         <!--Top app bar area-->
-        <Border Grid.Row="0" Grid.ColumnSpan="4" BorderThickness="3,2" IsEnabled="{Binding IsCommandNotBusy}" >
+        <Border Grid.Row="0" Grid.ColumnSpan="4" BorderThickness="0" IsEnabled="{Binding IsCommandNotBusy}" >
             <ui:SimpleStackPanel Orientation="Horizontal" Background="#19000000">
                 <ui:CommandBar DefaultLabelPosition="Bottom" HorizontalAlignment="Left">
                     <!--SymbolIcon: enum Symbol in Symbol.cs in ModernWpf-->
@@ -40,7 +39,7 @@
                 <ui:SimpleStackPanel Orientation="Horizontal">
                     <TextBox Text="Ask ChatGPT like talking to a person, one topic per chat" FontSize="20"
                         FontWeight="SemiBold" IsReadOnly="True" HorizontalAlignment="Left" VerticalAlignment="Center" 
-                        Foreground="#FF0078D4" Background="Transparent" BorderThickness="0" Margin="0,5,0,0" />
+                        Foreground="#FF0078D4" Background="Transparent" BorderThickness="0" />
                 </ui:SimpleStackPanel>
             </ui:SimpleStackPanel>
         </Border>
@@ -76,7 +75,7 @@
                         ItemsSource="{Binding SelectedChat.MessageList}" AlternationCount="2"
                         Background="#08000000" BorderBrush="LightGray" BorderThickness="0,1" SelectionMode="Single" 
                         ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.CanContentScroll="True" 
-                        VirtualizingPanel.ScrollUnit="Pixel" Margin="0,0,2,2">
+                        VirtualizingPanel.ScrollUnit="Pixel" Margin="0,2,2,2">
             <ui:ListView.ItemContainerStyle>
                 <Style TargetType="ui:ListViewItem">
                     <!--Disable selection: https://stackoverflow.com/questions/1051215/wpf-listview-turn-off-selection-->
@@ -216,14 +215,18 @@
                 <ColumnDefinition Width="*" MinWidth="200" />
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
+            
             <!--#08000000 ligher than #19000000-->
             <!--AcceptsReturn="True" needed for Paste from clipboard, MaxHeight for height limit-->
             <TextBox x:Name="ChatInputTextBox" SpellCheck.IsEnabled="True" IsEnabled="{Binding IsCommandNotBusy}"
-                        Text="{Binding ChatInput, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" 
-                        MaxHeight="170" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"
-                        Background="#08000000" FontSize="20" Padding="7,2,0,5" Margin="12,10,10,7">
+                        Text="{Binding ChatInput, UpdateSourceTrigger=PropertyChanged}" 
+                        ToolTip="Enter-Key for input of multiple lines. Ctrl+Enter to send. Ctrl+UpArrow or Ctrl+DownArrow to navigate previous input lines."
+                        TextWrapping="Wrap" MaxHeight="170" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"
+                        VerticalAlignment="Stretch" Background="#08000000" FontSize="20" 
+                        Padding="7,2,0,5" Margin="12,10,10,7">
                 <TextBox.InputBindings>
-                    <KeyBinding Key="Enter" Command="{Binding SendCommand}" />
+                    <!--Use CTRL+Enter to allow Enter alone for multiple lines in ChatInputTextBox-->
+                    <KeyBinding Key="Enter" Command="{Binding SendCommand}" Gesture="CTRL+Enter" />
                     <KeyBinding Key="Esc" Command="{Binding ClearChatInputCommand}" />
                 </TextBox.InputBindings>
                 <TextBox.CaretBrush>
@@ -239,13 +242,15 @@
             </TextBox>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button Content="Send" Command="{Binding SendCommand}" Style="{DynamicResource AccentButtonStyle}"
+                <Button Content="Send" ToolTip="Ctrl+Enter the same as Send" 
+                        Command="{Binding SendCommand}" Style="{DynamicResource AccentButtonStyle}"
                         Height="36" FontSize="20" Padding="10,0,10,3" Margin="3,2,0,0" />
             </StackPanel>
         </Grid>
 
         <!--StatusMessage-->
-        <Border Grid.Row="3" Grid.ColumnSpan="4" BorderBrush="Gray" BorderThickness="0,1,0,0" Margin="0,5,0,0">
+        <Border Grid.Row="3" Grid.ColumnSpan="4" BorderBrush="Gray" BorderThickness="0,1,0,0" Background="#19000000" 
+                Margin="0,5,0,0">
             <TextBlock Text="{Binding StatusMessage}" ToolTip="{Binding StatusMessage}" FontSize="18"
                         FontWeight="SemiBold" Margin="10,5,0,0" />
         </Border>

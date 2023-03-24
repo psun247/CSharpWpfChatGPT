@@ -49,7 +49,7 @@ namespace CSharpWpfChatGPT
         [ObservableProperty]
         private Chat _selectedChat;
         [ObservableProperty]
-        private string _chatInput = "Describe ChatGPT in 30 words";
+        private string _chatInput = "Top 20 new c# features";
         [ObservableProperty]
         private string _chatResult = string.Empty;
         [ObservableProperty]
@@ -63,7 +63,7 @@ namespace CSharpWpfChatGPT
         [ObservableProperty]
         private bool _isStreamingMode = true;
         [ObservableProperty]
-        string _statusMessage = "Enter a prompt and hit Enter key to send (or click Send button)";
+        string _statusMessage = "Enter-Key for input of multiple lines. Ctrl+Enter to send. Ctrl+UpArrow or Ctrl+DownArrow to navigate previous input lines.";
 
         // Also RelayCommand from AppBar
         [RelayCommand]
@@ -242,6 +242,9 @@ namespace CSharpWpfChatGPT
 
             // Always set focus to ChatInput after Send()
             UpdateUIAction?.Invoke(UpdateUIEnum.SetFocusToChatInput);
+
+            // Always ScrollToBottom
+            UpdateUIAction?.Invoke(UpdateUIEnum.MessageListViewScrollToBottom);
         }
 
         private bool ValidateInput(string input, out string prompt)
