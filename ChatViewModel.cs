@@ -63,7 +63,7 @@ namespace CSharpWpfChatGPT
         [ObservableProperty]
         private bool _isStreamingMode = true;
         [ObservableProperty]
-        string _statusMessage = "Enter-Key for input of multiple lines. Ctrl+Enter to send. Ctrl+UpArrow or Ctrl+DownArrow to navigate previous input lines.";
+        string _statusMessage = "Ctrl+Enter for input of multiple lines. Enter-Key to send. Ctrl+UpArrow or Ctrl+DownArrow to navigate previous input lines.";
 
         // Also RelayCommand from AppBar
         [RelayCommand]

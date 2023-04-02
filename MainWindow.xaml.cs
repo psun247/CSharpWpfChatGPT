@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -64,10 +65,24 @@ namespace CSharpWpfChatGPT
         }
 
         private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            // Use CTRL+Up/Down to allow Up/Down alone for multiple lines in ChatInputTextBox
-            if ((e.Key == Key.Up || e.Key == Key.Down) && (e.KeyboardDevice.Modifiers & ModifierKeys.Control) != 0)
+        {            
+            if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
             {
+                // Ctrl+Enter for input of multiple lines
+                var mainWindow = sender as MainWindow;
+                if (mainWindow != null)
+                {
+                    // ChatGPT mostly answered this!
+                    TextBox textBox = mainWindow.ChatInputTextBox;
+                    int caretIndex = textBox.CaretIndex;
+                    textBox.Text = textBox.Text.Insert(caretIndex, Environment.NewLine);
+                    textBox.CaretIndex = caretIndex + Environment.NewLine.Length;
+                    e.Handled = true;
+                }
+            }            
+            else if ((e.Key == Key.Up || e.Key == Key.Down) && (e.KeyboardDevice.Modifiers & ModifierKeys.Control) != 0)
+            {
+                // Use CTRL+Up/Down to allow Up/Down alone for multiple lines in ChatInputTextBox
                 TextBox? inputTextBox = Keyboard.FocusedElement as TextBox;
                 if (inputTextBox?.Name == "ChatInputTextBox")
                 {
@@ -78,9 +93,8 @@ namespace CSharpWpfChatGPT
 
         private void SetupChatListViewScrollViewer()
         {
-            // Get the ScrollViewer from the ListView that holds the comm log items.
-            // We'll need that in order to reliably implement "automatically scroll to 
-            // the bottom when new items are added" functionality.            
+            // Get the ScrollViewer from the ListView. We'll need that in order to reliably
+            // implement "automatically scroll to the bottom when new items are added" functionality.            
             _chatListViewScrollViewer = GetScrollViewer(ChatListView);
 
             // Based on: https://stackoverflow.com/a/1426312	

@@ -215,18 +215,17 @@
                 <ColumnDefinition Width="*" MinWidth="200" />
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            
+
             <!--#08000000 ligher than #19000000-->
             <!--AcceptsReturn="True" needed for Paste from clipboard, MaxHeight for height limit-->
             <TextBox x:Name="ChatInputTextBox" SpellCheck.IsEnabled="True" IsEnabled="{Binding IsCommandNotBusy}"
-                        Text="{Binding ChatInput, UpdateSourceTrigger=PropertyChanged}" 
-                        ToolTip="Enter-Key for input of multiple lines. Ctrl+Enter to send. Ctrl+UpArrow or Ctrl+DownArrow to navigate previous input lines."
-                        TextWrapping="Wrap" MaxHeight="170" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"
+                        Text="{Binding ChatInput, UpdateSourceTrigger=PropertyChanged}"                         
+                        TextWrapping="Wrap" MaxHeight="170" VerticalScrollBarVisibility="Auto" AcceptsReturn="False"
                         VerticalAlignment="Stretch" Background="#08000000" FontSize="20" 
                         Padding="7,2,0,5" Margin="12,10,10,7">
                 <TextBox.InputBindings>
-                    <!--Use CTRL+Enter to allow Enter alone for multiple lines in ChatInputTextBox-->
-                    <KeyBinding Key="Enter" Command="{Binding SendCommand}" Gesture="CTRL+Enter" />
+                    <!--Now Enter to Send-->
+                    <KeyBinding Key="Enter" Command="{Binding SendCommand}" />
                     <KeyBinding Key="Esc" Command="{Binding ClearChatInputCommand}" />
                 </TextBox.InputBindings>
                 <TextBox.CaretBrush>
@@ -242,7 +241,7 @@
             </TextBox>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button Content="Send" ToolTip="Ctrl+Enter the same as Send" 
+                <Button Content="Send" ToolTip="Enter is the same as Send" 
                         Command="{Binding SendCommand}" Style="{DynamicResource AccentButtonStyle}"
                         Height="36" FontSize="20" Padding="10,0,10,3" Margin="3,2,0,0" />
             </StackPanel>
