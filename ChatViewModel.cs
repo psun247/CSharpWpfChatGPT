@@ -35,11 +35,19 @@ namespace CSharpWpfChatGPT
             ChatList = new ObservableCollection<Chat>(_chatHistory.ChatList);
             _selectedChat = ChatList[0];
             _chatInputList = new List<string>();
-            _chatInputListIndex = -1;
+            _chatInputListIndex = -1;                        
+            _chatInput = "Top 5 new C# 11 features";
+
+            Version ver = Environment.Version;
+            AppTitle = $"C# WPF ChatGPT (.NET {ver.Major}.{ver.Minor}.{ver.Build} runtime) by Peter Sun" ;
+#if DEBUG
+            AppTitle += " - DEBUG";
+#endif
         }
 
+        public string AppTitle { get; }
         public Action<UpdateUIEnum>? UpdateUIAction { get; set; }
-        public bool IsCommandNotBusy => !_isCommandBusy;
+        public bool IsCommandNotBusy => !IsCommandBusy;
         [ObservableProperty]
         private bool _isCommandBusy;
         [ObservableProperty]
@@ -49,7 +57,7 @@ namespace CSharpWpfChatGPT
         [ObservableProperty]
         private Chat _selectedChat;
         [ObservableProperty]
-        private string _chatInput = "Top 20 new c# features";
+        private string _chatInput;
         [ObservableProperty]
         private string _chatResult = string.Empty;
         [ObservableProperty]
@@ -203,7 +211,7 @@ namespace CSharpWpfChatGPT
         }
 
         [RelayCommand]
-        private async void Send()
+        private async Task Send()
         {
             if (IsCommandBusy)
             {
@@ -231,7 +239,7 @@ namespace CSharpWpfChatGPT
 
                 PostProcessOnSend(prompt);
 
-                StatusMessage = "Done";
+                StatusMessage = "Ready";
             }
             catch (Exception ex)
             {
@@ -378,7 +386,7 @@ namespace CSharpWpfChatGPT
         }
 
         [RelayCommand]
-        private async void CreateImage()
+        private async Task CreateImage()
         {
             if (!ValidateInput(ImageInput, out string prompt))
             {

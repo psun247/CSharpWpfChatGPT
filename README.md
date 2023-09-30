@@ -14,7 +14,7 @@ In App.xaml.cs, modify this line:
 
 string openaiApiKey = "<Your Open AI API Key>" // Use your API key here (something like "sk-Ih...WPd")
 
-Build CSharpWpfChatGPT.sln with Visual Studio 2022.  This app is targeted for .NET 6.
+Build CSharpWpfChatGPT.sln with Visual Studio 2022.  This app is targeted for .NET 6 and 7.
 
 # Whetstone.ChatGPT
 I used John Iwasz's excellent Whetstone.ChatGPT to do the heavy lifting for ChatGPT API calls.

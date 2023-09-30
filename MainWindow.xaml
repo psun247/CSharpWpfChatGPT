@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Icon="/CSharpWpfChatGPT;component/Resoruces/App.ico"        
         WindowStartupLocation="CenterScreen"
-        Title="C# WPF ChatGPT by Peter Sun" Height="1000" Width="1600" MinHeight="400" MinWidth="500">
+        Title="{Binding AppTitle}" Height="1000" Width="1600" MinHeight="400" MinWidth="500">
     <Grid FocusManager.FocusedElement="{Binding ElementName=ChatInputTextBox}">
         <!-- Header section -->
         <Grid.RowDefinitions>
