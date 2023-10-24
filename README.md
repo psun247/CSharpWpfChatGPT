@@ -12,7 +12,7 @@ https://platform.openai.com/account/api-keys
 You can use the key as a command line parameter (without compiling the project):
 1. Click CSharpWpfChatGPT_v1.1 under Releases on the right side of this page
 2. Download CSharpWpfChatGPT_v1.1_net6.0-windows.zip
-3. Unzip the file and run CSharpWpfChatGPT.exe /<the key obtained above>
+3. Unzip the file and run CSharpWpfChatGPT.exe /the key obtained above
 
 Or in App.xaml.cs, modify this line:
 return "<Your Open AI API Key is something like \"sk-Ih...WPd\">";
