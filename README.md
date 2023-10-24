@@ -9,9 +9,13 @@ C# WPF app that mimics ChatGPT website UI
 Create an Open AI account to obtain an API key:
 https://platform.openai.com/account/api-keys
 
-In App.xaml.cs, modify this line:
+You can use the key as a command line parameter (without compiling the project):
+1. Click CSharpWpfChatGPT_v1.1 under Releases on the right side of this page
+2. Download CSharpWpfChatGPT_v1.1_net6.0-windows.zip
+3. Unzip the file and run CSharpWpfChatGPT.exe /<the key obtained above>
 
-string openaiApiKey = "<Your Open AI API Key>" // Use your API key here (something like "sk-Ih...WPd")
+Or in App.xaml.cs, modify this line:
+return "<Your Open AI API Key is something like \"sk-Ih...WPd\">";
 
 Build CSharpWpfChatGPT.sln with Visual Studio 2022.  This app is targeted for .NET 6 and 7.
 
