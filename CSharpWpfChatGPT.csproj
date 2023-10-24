@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFrameworks>net6.0-windows;net7.0-windows</TargetFrameworks>
+    <Version>1.1</Version>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>

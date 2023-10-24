@@ -17,7 +17,7 @@ namespace CSharpWpfChatGPT.Services
 
         public async Task<ChatGPTCompletionResponse?> GetResponseDataAsync(string prompt, CancellationToken cancellationToken)
         {
-            var gptRequest = new ChatGPTCompletionRequest
+            ChatGPTCompletionRequest gptRequest = new ()
             {
                 Model = ChatGPTCompletionModels.Davinci,
                 Prompt = prompt,
@@ -29,7 +29,7 @@ namespace CSharpWpfChatGPT.Services
 
         public IAsyncEnumerable<ChatGPTCompletionResponse?> StreamCompletionAsync(string prompt, CancellationToken cancellationToken)
         {
-            var completionRequest = new ChatGPTCompletionRequest
+            ChatGPTCompletionRequest completionRequest = new()
             {
                 Model = ChatGPTCompletionModels.Davinci,
                 Prompt = prompt,
@@ -45,7 +45,7 @@ namespace CSharpWpfChatGPT.Services
 
         public async Task<byte[]?> CreateImageAsync(string prompt)
         {
-            ChatGPTCreateImageRequest imageRequest = new()
+            ChatGPTCreateImageRequest imageRequest = new ()
             {
                 Prompt = prompt,
                 Size = CreatedImageSize.Size1024,

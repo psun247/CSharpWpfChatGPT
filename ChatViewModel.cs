@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,7 +17,7 @@ using CSharpWpfChatGPT.Helpers;
 
 namespace CSharpWpfChatGPT
 {
-    // C# .NET 6 WPF, Whetstone ChatGPT, CommunityToolkit MVVM, ModernWpfUI, RestoreWindowPlace
+    // C# .NET 6 / 7 WPF, Whetstone ChatGPT, CommunityToolkit MVVM, ModernWpfUI, RestoreWindowPlace
     public partial class ChatViewModel : ObservableObject
     {
         private readonly char[] _StartTokensToTrim = new char[] { '?', '\n', ' ' };
@@ -35,11 +36,13 @@ namespace CSharpWpfChatGPT
             ChatList = new ObservableCollection<Chat>(_chatHistory.ChatList);
             _selectedChat = ChatList[0];
             _chatInputList = new List<string>();
-            _chatInputListIndex = -1;                        
-            _chatInput = "Top 5 new C# 11 features";
+            _chatInputListIndex = -1;
+            _chatInput = "Top 5 C# features";
 
-            Version ver = Environment.Version;
-            AppTitle = $"C# WPF ChatGPT (.NET {ver.Major}.{ver.Minor}.{ver.Build} runtime) by Peter Sun" ;
+            // <Version>1.1</Version> in .csproj
+            Version appVer = Assembly.GetExecutingAssembly().GetName().Version!;
+            Version dotnetVer = Environment.Version;
+            AppTitle = $"C# WPF ChatGPT v{appVer.Major}.{appVer.Minor} (.NET {dotnetVer.Major}.{dotnetVer.Minor}.{dotnetVer.Build} runtime) by Peter Sun";
 #if DEBUG
             AppTitle += " - DEBUG";
 #endif
@@ -401,7 +404,7 @@ namespace CSharpWpfChatGPT
                 // Will reject query of an image of a real person
                 ResultImage = await _chatGPTService.CreateImageAsync(prompt);
 
-                StatusMessage = "Done";
+                StatusMessage = $"Processed image request for '{prompt}'";
             }
             catch (Exception ex)
             {

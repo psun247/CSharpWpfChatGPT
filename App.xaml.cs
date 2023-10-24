@@ -16,10 +16,7 @@ namespace CSharpWpfChatGPT
 
             try
             {
-                // See README.md for https://platform.openai.com/account/api-keys
-                // TODO: a key could look like "sk-Ih...WPd"
-                string openaiApiKey = "<Your Open AI API Key>";
-
+                string openaiApiKey = ParseOpenAIApiKey(e.Args);
                 var chatGPTService = new WhetstoneChatGPTService(openaiApiKey);
                 var chatViewModel = new ChatViewModel(chatGPTService);
                 var mainWindow = new MainWindow(chatViewModel);
@@ -31,6 +28,19 @@ namespace CSharpWpfChatGPT
                 MessageBox.Show(ex.ToString(), "CSharpWpfChatGPT will exit on error");
                 Current?.Shutdown();
             }
+        }
+
+        private string ParseOpenAIApiKey(string[] args)
+        {
+            if (args?.Length > 0 && args[0].StartsWith('/'))
+            {
+                // Open AI API Key from command line parameter as "/sk-Ih...WPd" after removing '/'
+                return args[0].Remove(0, 1);
+            }
+
+            // See README.md for https://platform.openai.com/account/api-keys
+            // TODO: put your hard-code key here instead of using a command line parameter
+            return "<Your Open AI API Key is something like \"sk-Ih...WPd\">";
         }
 
         protected override void OnExit(ExitEventArgs e)
