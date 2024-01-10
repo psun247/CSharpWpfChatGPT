@@ -1,3 +1,7 @@
+# Note
+See the latest ChatGPT with GPT-3.5 Turbo model and WPF Shazam, check out my ShazamDesk project: 
+https://github.com/psun247/ShazamDesk
+
 # C# WPF ChatGPT
 C# WPF app that mimics ChatGPT website UI
 
