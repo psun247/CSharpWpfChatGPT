@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -17,12 +16,9 @@ using CSharpWpfChatGPT.Helpers;
 
 namespace CSharpWpfChatGPT
 {
-    // C# .NET 6 / 7 WPF, Whetstone ChatGPT, CommunityToolkit MVVM, ModernWpfUI, RestoreWindowPlace
+    // C# .NET 6 / 8 WPF, Whetstone ChatGPT, CommunityToolkit MVVM, ModernWpfUI, RestoreWindowPlace
     public partial class ChatViewModel : ObservableObject
-    {
-        private readonly char[] _StartTokensToTrim = new char[] { '?', '\n', ' ' };
-        private readonly string[] _StartTokensToSkip = new string[] { "?", " ", "Bot", ":", "", "\n" };
-
+    {        
         private WhetstoneChatGPTService _chatGPTService;
         private ChatHistory _chatHistory;
         private List<string> _chatInputList;
@@ -37,7 +33,7 @@ namespace CSharpWpfChatGPT
             _selectedChat = ChatList[0];
             _chatInputList = new List<string>();
             _chatInputListIndex = -1;
-            _chatInput = "Top 5 C# features";
+            _chatInput = "Top .NET features as of 2024";
 
             // <Version>1.1</Version> in .csproj
             Version appVer = Assembly.GetExecutingAssembly().GetName().Version!;
@@ -305,23 +301,10 @@ namespace CSharpWpfChatGPT
 
         private async Task<string> DoSend(string prompt)
         {
-            string result = string.Empty;
-            ChatGPTCompletionResponse? completionResponse =
-                await _chatGPTService.GetResponseDataAsync(prompt, CancellationToken.None);
-            if (completionResponse?.Choices != null)
-            {
-                foreach (ChatGPTChoice? choice in completionResponse.Choices)
-                {
-                    if (choice != null)
-                    {
-                        // If '?' is not included in prompt, it will show up in the first character
-                        //result += choice.Text.Replace("\n", string.Empty).Replace("?", string.Empty);
-                        // Keep \n since result could be C# code, so only TrimStart                    
-                        result += choice.Text?.TrimStart(_StartTokensToTrim);
-                    }
-                }
-            }
-            return result;
+            // GPT-3.5
+            ChatGPTChatCompletionResponse? completionResponse = await _chatGPTService.CreateChatCompletionAsync(prompt);
+            ChatGPTChatCompletionMessage? message = completionResponse?.GetMessage();
+            return message?.Content ?? string.Empty;            
         }
 
         private async Task SendStreamingMode(string prompt)
@@ -329,33 +312,16 @@ namespace CSharpWpfChatGPT
             // Append with message.Text below
             Message message = SelectedChat.AddMessage("Bot", string.Empty);
 
-            bool handledStartTokensToSkip = false;
-            int totalTokens = 0;
-            await foreach (ChatGPTCompletionResponse? completionResponse
-                            in _chatGPTService.StreamCompletionAsync(prompt, CancellationToken.None))
+            // GPT-3.5
+            await foreach (ChatGPTChatCompletionStreamResponse? response in
+                                _chatGPTService.StreamChatCompletionAsync(prompt).ConfigureAwait(false))
             {
-                if (completionResponse is not null)
+                if (response is not null)
                 {
-                    string? part = completionResponse.GetCompletionText();
-                    if (!handledStartTokensToSkip)
-                    {
-                        if (part.In(_StartTokensToSkip))
-                        {
-                            continue;
-                        }
-
-                        part = part?.TrimStart(_StartTokensToTrim);
-                        handledStartTokensToSkip = true;
-                    }
-
-                    message.Text = message.Text + part;
-
-                    if (completionResponse.Usage is not null)
-                    {
-                        totalTokens += completionResponse.Usage.TotalTokens;
-                    }
+                    string? responseText = response.GetCompletionText();
+                    message.Text = message.Text + responseText;
                 }
-            }
+            }            
         }
 
         private void PostProcessOnSend(string prompt)
