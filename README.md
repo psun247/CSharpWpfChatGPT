@@ -21,7 +21,7 @@ You can use the key as a command line parameter (without compiling the project):
 Or in App.xaml.cs, modify this line:
 return "<Your Open AI API Key is something like \"sk-Ih...WPd\">";
 
-Build CSharpWpfChatGPT.sln with Visual Studio 2022.  This app is targeted for .NET 6 and 8.
+Build CSharpWpfChatGPT.sln with Visual Studio 2022.  This app is targeted for .NET 6 and 8.  If you don't have .NET 8 installed, remove net8.0-windows in CSharpWpfChatGPT.csproj.
 
 # Whetstone.ChatGPT
 I used John Iwasz's excellent Whetstone.ChatGPT to do the heavy lifting for ChatGPT API calls.
