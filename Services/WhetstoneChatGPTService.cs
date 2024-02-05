@@ -38,20 +38,7 @@ namespace CSharpWpfChatGPT.Services
                 MaxTokens = 500,
             };
             return await _chatGPTClient.CreateChatCompletionAsync(gptRequest);
-        }
-
-        // GPT-3, deprecated on 2024-01-04
-        //public async Task<ChatGPTCompletionResponse?> GetResponseDataAsync(string prompt, CancellationToken cancellationToken)
-        //{
-        //    var gptRequest = new ChatGPTCompletionRequest
-        //    {
-        //        Model = ChatGPT35Models.Davinci003,
-        //        Prompt = prompt,
-        //        Temperature = 0.5f,
-        //        MaxTokens = 500,
-        //    };
-        //    return await _chatGPTClient.CreateCompletionAsync(gptRequest, cancellationToken);
-        //}
+        }       
 
         // After 2024-01-04, must use GPT-3.5 with ChatGPT35Models.Turbo
         public IAsyncEnumerable<ChatGPTChatCompletionStreamResponse?> StreamChatCompletionAsync(string prompt)
@@ -76,23 +63,7 @@ namespace CSharpWpfChatGPT.Services
                 MaxTokens = 500,
             };
             return _chatGPTClient.StreamChatCompletionAsync(completionRequest);
-        }
-
-        // GPT-3, deprecated on 2024-01-04
-        //public IAsyncEnumerable<ChatGPTCompletionStreamResponse?> StreamCompletionAsync(string prompt, CancellationToken cancellationToken)
-        //{
-        //    var completionRequest = new ChatGPTCompletionRequest
-        //    {
-        //        Model = ChatGPT35Models.Davinci003,
-        //        Prompt = prompt,
-        //        Temperature = 1.0f,
-        //        MaxTokens = 500,
-        //        TopP = 0.3f,
-        //        FrequencyPenalty = 0.5f,
-        //        PresencePenalty = 0
-        //    };
-        //    return _chatGPTClient.StreamCompletionAsync(completionRequest, cancellationToken);
-        //}
+        }        
 
         public async Task<byte[]?> CreateImageAsync(string prompt)
         {
