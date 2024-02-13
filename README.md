@@ -1,3 +1,6 @@
+# Please read the project article at codeproject.com
+https://www.codeproject.com/Tips/5377103/ChatGPT-API-in-Csharp-WPF
+
 # C# WPF ChatGPT
 C# WPF app that communicates OpenAI GPT3.5-turbo API
 
