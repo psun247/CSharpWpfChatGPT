@@ -7,13 +7,16 @@ namespace CSharpWpfChatGPT.Models
     {
         public Chat(string name)
         {
-            Name = name;
+            Name = name;            
             MessageList = new ObservableCollection<Message>();
         }
 
         // ObservableProperty needed for a new chat name update on the left panel
         [ObservableProperty]
         private string _name = string.Empty;
+
+        // When false, chat is for 'Explain' or 'Translate to'
+        public bool IsSend { get; set; } = true;
 
         public ObservableCollection<Message> MessageList { get; }
 

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Speech.Synthesis;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Whetstone.ChatGPT;
@@ -18,7 +19,7 @@ namespace CSharpWpfChatGPT
 {
     // C# .NET 6 / 8 WPF, Whetstone ChatGPT, CommunityToolkit MVVM, ModernWpfUI, RestoreWindowPlace
     public partial class ChatViewModel : ObservableObject
-    {        
+    {
         private WhetstoneChatGPTService _chatGPTService;
         private ChatHistory _chatHistory;
         private List<string> _chatInputList;
@@ -28,14 +29,15 @@ namespace CSharpWpfChatGPT
         {
             _chatGPTService = chatGPTService;
             _chatHistory = new ChatHistory();
-            _chatHistory.AddChat("New Chat");
+            _selectedChat = _chatHistory.AddNewChat();
             ChatList = new ObservableCollection<Chat>(_chatHistory.ChatList);
-            _selectedChat = ChatList[0];
             _chatInputList = new List<string>();
             _chatInputListIndex = -1;
-            _chatInput = "Top .NET features as of 2024";
+            _chatInput = "What's the latest as of 2024 on ML.NET?";
+            // TODO: hard-code your default language here
+            _selectedLang = LangList[3];
 
-            // <Version>1.1</Version> in .csproj
+            // <Version>1.3</Version> in .csproj
             Version appVer = Assembly.GetExecutingAssembly().GetName().Version!;
             Version dotnetVer = Environment.Version;
             AppTitle = $"C# WPF ChatGPT v{appVer.Major}.{appVer.Minor} (.NET {dotnetVer.Major}.{dotnetVer.Minor}.{dotnetVer.Build} runtime) by Peter Sun";
@@ -69,8 +71,13 @@ namespace CSharpWpfChatGPT
         public byte[]? _resultImage;
         [ObservableProperty]
         private bool _isStreamingMode = true;
+        public string[] LangList { get; } = { "English", "Chinese", "Hindi", "Spanish" };
         [ObservableProperty]
-        string _statusMessage = "Ctrl+Enter for input of multiple lines. Enter-Key to send. Ctrl+UpArrow or Ctrl+DownArrow to navigate previous input lines.";
+        public string _selectedLang;
+        [ObservableProperty]
+        bool _isFemaleVoice = true;
+        [ObservableProperty]
+        string _statusMessage = "Ctrl+Enter for input of multiple lines. Enter-Key to send. Ctrl+UpArrow | DownArrow to navigate previous input lines";
 
         // Also RelayCommand from AppBar
         [RelayCommand]
@@ -78,16 +85,12 @@ namespace CSharpWpfChatGPT
         {
             try
             {
-                if (_chatHistory.NewChatExists)
-                {
-                    // Note: 'New Chat' will be renamed after it's 'used' in Send().
+                if (!AddNewChatIfNotExists())
+                {                    
                     StatusMessage = "'New Chat' already exists";
                     return;
                 }
 
-                Chat newChat = _chatHistory.AddNewChat();
-                ChatList.Add(newChat);
-                SelectedChat = newChat;
                 UpdateUIAction?.Invoke(UpdateUIEnum.SetFocusToChatInput);
 
                 StatusMessage = "'New Chat' has been added and selected";
@@ -96,6 +99,20 @@ namespace CSharpWpfChatGPT
             {
                 StatusMessage = ex.Message;
             }
+        }
+
+        private bool AddNewChatIfNotExists()
+        {
+            if (_chatHistory.NewChatExists)
+            {
+                return false;
+            }
+
+            // Note: 'New Chat' will be renamed after it's used
+            Chat newChat = _chatHistory.AddNewChat();
+            ChatList.Add(newChat);
+            SelectedChat = newChat;
+            return true;
         }
 
         // Up/Previous or down/next chat input in the chat input list
@@ -254,6 +271,93 @@ namespace CSharpWpfChatGPT
             UpdateUIAction?.Invoke(UpdateUIEnum.MessageListViewScrollToBottom);
         }
 
+        [RelayCommand]
+        private async Task Explain()
+        {
+            await ExecutePost("Explain");
+        }
+
+        [RelayCommand]
+        private async Task TranslateTo()
+        {
+            await ExecutePost($"Translate to {SelectedLang}");
+        }
+
+        private async Task ExecutePost(string prefix)
+        {
+            if (IsCommandBusy)
+            {
+                return;
+            }
+
+            if (!ValidateInput(ChatInput, out string prompt))
+            {
+                return;
+            }
+
+            try
+            {
+                SetCommandBusy(true);
+
+                // 'Explain' or 'Translate to' always uses a new chat
+                AddNewChatIfNotExists();
+
+                prompt = $"{prefix} '{prompt}'";
+                await Send(prompt, prompt);
+
+                PostProcessOnSend(prompt);
+
+                // Ensure this is marked for logic in BuildPreviousPrompts()
+                SelectedChat.IsSend = false;
+
+                StatusMessage = "Ready";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ex.Message;
+            }
+
+            SetCommandBusy(false);
+
+            // Always set focus to ChatInput after Send()
+            UpdateUIAction?.Invoke(UpdateUIEnum.SetFocusToChatInput);
+
+            // Always ScrollToBottom
+            UpdateUIAction?.Invoke(UpdateUIEnum.MessageListViewScrollToBottom);
+        }
+
+        [RelayCommand]
+        private void Speak()
+        {
+            try
+            {
+                SetCommandBusy(true);
+
+                var synthesizer = new SpeechSynthesizer()
+                {
+                    Volume = 100,  // 0...100
+                    Rate = -2,     // -10...10                    
+                };
+
+                synthesizer.SelectVoiceByHints(IsFemaleVoice ? VoiceGender.Female : VoiceGender.Male, VoiceAge.Adult);
+
+                // Asynchronous / Synchronous
+                synthesizer.SpeakAsync(ChatInput);
+                //synthesizer.Speak(ChatInput);
+
+                StatusMessage = "Done";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ex.Message;
+            }
+
+            SetCommandBusy(false);
+
+            // Always set focus to ChatInput
+            UpdateUIAction?.Invoke(UpdateUIEnum.SetFocusToChatInput);
+        }
+
         private bool ValidateInput(string input, out string prompt)
         {
             prompt = input.Trim();
@@ -269,8 +373,14 @@ namespace CSharpWpfChatGPT
         private string BuildPreviousPrompts()
         {
             string previousPrompts = string.Empty;
-            if (SelectedChat.MessageList.IsNotEmpty())
+            if (!SelectedChat.IsSend)
             {
+                // We are be on 'Explain' or 'Translate to', so auto-create a new chat
+                AddNewChatIfNotExists();
+            }
+            else if (SelectedChat.MessageList.IsNotEmpty())
+            {
+                // Continue with previous chat by sending previousPrompts
                 foreach (Message message in SelectedChat.MessageList)
                 {
                     previousPrompts += $"{message.Sender}: {message.Text}";
@@ -304,7 +414,7 @@ namespace CSharpWpfChatGPT
             // GPT-3.5
             ChatGPTChatCompletionResponse? completionResponse = await _chatGPTService.CreateChatCompletionAsync(prompt);
             ChatGPTChatCompletionMessage? message = completionResponse?.GetMessage();
-            return message?.Content ?? string.Empty;            
+            return message?.Content ?? string.Empty;
         }
 
         private async Task SendStreamingMode(string prompt)
@@ -321,7 +431,7 @@ namespace CSharpWpfChatGPT
                     string? responseText = response.GetCompletionText();
                     message.Text = message.Text + responseText;
                 }
-            }            
+            }
         }
 
         private void PostProcessOnSend(string prompt)

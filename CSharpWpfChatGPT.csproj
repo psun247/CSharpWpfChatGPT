@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFrameworks>net6.0-windows;net8.0-windows</TargetFrameworks>
-    <Version>1.2</Version>
+    <Version>1.3</Version>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
@@ -25,6 +25,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
     <PackageReference Include="ModernWpfUI" Version="0.9.6" />
     <PackageReference Include="RestoreWindowPlace" Version="2.1.0" />
+    <PackageReference Include="System.Speech" Version="8.0.0" />
     <PackageReference Include="Whetstone.ChatGPT" Version="1.7.0" />
   </ItemGroup>
 

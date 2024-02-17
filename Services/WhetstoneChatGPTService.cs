@@ -22,18 +22,18 @@ namespace CSharpWpfChatGPT.Services
             {
                 Model = ChatGPT35Models.Turbo,
                 Messages = new List<ChatGPTChatCompletionMessage>()
-            {
-                new ChatGPTChatCompletionMessage()
                 {
-                    Role = ChatGPTMessageRoles.System,
-                    Content = "You are a helpful assistant."
+                    new ChatGPTChatCompletionMessage()
+                    {
+                        Role = ChatGPTMessageRoles.System,
+                        Content = "You are a helpful assistant."
+                    },
+                    new ChatGPTChatCompletionMessage()
+                    {
+                        Role = ChatGPTMessageRoles.User,
+                        Content = prompt
+                    },
                 },
-                new ChatGPTChatCompletionMessage()
-                {
-                    Role = ChatGPTMessageRoles.User,
-                    Content = prompt
-                },
-            },
                 Temperature = 0.9f,
                 MaxTokens = 500,
             };
@@ -47,18 +47,18 @@ namespace CSharpWpfChatGPT.Services
             {
                 Model = ChatGPT35Models.Turbo,
                 Messages = new List<ChatGPTChatCompletionMessage>()
-            {
-                new ChatGPTChatCompletionMessage()
                 {
-                    Role = ChatGPTMessageRoles.System,
-                    Content = "You are a helpful assistant."
+                    new ChatGPTChatCompletionMessage()
+                    {
+                        Role = ChatGPTMessageRoles.System,
+                        Content = "You are a helpful assistant."
+                    },
+                    new ChatGPTChatCompletionMessage()
+                    {
+                        Role = ChatGPTMessageRoles.User,
+                        Content = prompt
+                    },
                 },
-                new ChatGPTChatCompletionMessage()
-                {
-                    Role = ChatGPTMessageRoles.User,
-                    Content = prompt
-                },
-            },
                 Temperature = 0.9f,
                 MaxTokens = 500,
             };

@@ -37,7 +37,7 @@
                           IsChecked="{Binding IsStreamingMode}" FontWeight="SemiBold" VerticalAlignment="Top" Margin="0,15,0,0" />
                 <ui:AppBarSeparator Margin="0,10,0,0" />
                 <ui:SimpleStackPanel Orientation="Horizontal">
-                    <TextBox Text="GPT-3.5 with model turbo January 2024" FontSize="20"
+                    <TextBox Text="GPT-3.5 Turbo February 2024" FontSize="20"
                         FontWeight="SemiBold" IsReadOnly="True" HorizontalAlignment="Left" VerticalAlignment="Center" 
                         Foreground="#FF0078D4" Background="Transparent" BorderThickness="0" />
                 </ui:SimpleStackPanel>
@@ -241,9 +241,29 @@
             </TextBox>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <StackPanel.Resources>
+                    <Style TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}">
+                        <Setter Property="Height" Value="36" />
+                        <Setter Property="FontSize" Value="20" />
+                        <Setter Property="Padding" Value="10,0,10,3" />
+                    </Style>
+                </StackPanel.Resources>
+                
                 <Button Content="Send" ToolTip="Enter is the same as Send" 
-                        Command="{Binding SendCommand}" Style="{DynamicResource AccentButtonStyle}"
-                        Height="36" FontSize="20" Padding="10,0,10,3" Margin="3,2,0,0" />
+                        Command="{Binding SendCommand}" Margin="3,2,0,0" />
+                <Expander ExpandDirection="Right" IsExpanded="True" Margin="10,0,0,0" VerticalAlignment="Bottom" >
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8" >
+                        <Button Content="Explain" Command="{Binding ExplainCommand}" ToolTip="Explain input (usually short like ML.NET)"
+                                IsEnabled="{Binding IsCommandNotBusy}" Margin="5,0,0,0"/>
+                        <Button Content="Translate to" Command="{Binding TranslateToCommand}" ToolTip="Translate input to selected language"                                
+                                IsEnabled="{Binding IsCommandNotBusy}" Margin="15,0,0,0" />
+                        <ComboBox Grid.Column="1" IsEnabled="{Binding IsCommandNotBusy}" Height="32" Width="100" FontWeight="SemiBold"
+                                ItemsSource="{Binding LangList}" SelectedItem="{Binding SelectedLang}" Margin="10,0,0,0" />
+                        <Button Content="Speak" Command="{Binding SpeakCommand}" ToolTip="Speak input (English only)"
+                                IsEnabled="{Binding IsCommandNotBusy}" Margin="15,0,0,0"/>
+                        <CheckBox Content="Female voice" IsChecked="{Binding IsFemaleVoice}" FontWeight="SemiBold" Margin="10,0,0,0" />
+                    </StackPanel>
+                </Expander>
             </StackPanel>
         </Grid>
 
