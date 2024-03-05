@@ -1,6 +1,9 @@
 # Please read my project article at codeproject.com
 https://www.codeproject.com/Tips/5377103/ChatGPT-API-in-Csharp-WPF-XAML-MVVM
 
+# Feel free to explore my other repositories on GitHub!
+https://github.com/psun247
+
 # ChatGPT API in C# WPF / XAML / MVVM
 C# WPF app that communicates with OpenAI GPT-3.5 Turbo API
 
