@@ -31,11 +31,14 @@ namespace CSharpWpfChatGPT
                     // Put your key from above here instead of using a command line parameter in the 'if' block
                     openaiApiKey = "<Your Open AI API Key is something like \"sk-Ih...WPd\">";
                 }
-                
-                
+
+                // Programmatically switch between SqlHistoryRepo and EmptyHistoryRepo
+                // If you have configured SQL Server, try SqlHistoryRepo
+                //IHistoryRepo historyRepo = new SqlHistoryRepo();
+                IHistoryRepo historyRepo = new EmptyHistoryRepo();
                 var chatGPTService = new WhetstoneChatGPTService(openaiApiKey);
-                var chatViewModel = new ChatViewModel(chatGPTService);
-                var mainWindow = new MainWindow(chatViewModel);
+                var mainViewModel = new MainViewModel(historyRepo, chatGPTService);
+                var mainWindow = new MainWindow(mainViewModel);
                 SetupRestoreWindowPlace(mainWindow);
                 mainWindow.Show();
             }

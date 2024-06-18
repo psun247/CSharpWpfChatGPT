@@ -2,67 +2,51 @@
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Speech.Synthesis;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using Whetstone.ChatGPT;
 using Whetstone.ChatGPT.Models;
 using CSharpWpfChatGPT.Models;
 using CSharpWpfChatGPT.Services;
 using CSharpWpfChatGPT.Helpers;
 
-namespace CSharpWpfChatGPT
+namespace CSharpWpfChatGPT.LiveChat
 {
     // C# .NET 6 / 8 WPF, Whetstone ChatGPT, CommunityToolkit MVVM, ModernWpfUI, RestoreWindowPlace
-    public partial class ChatViewModel : ObservableObject
+    public partial class LiveChatViewModel : ObservableObject
     {
-        private WhetstoneChatGPTService _chatGPTService;
-        private ChatHistory _chatHistory;
-        private List<string> _chatInputList;
-        private int _chatInputListIndex;
+        private IHistoryRepo _historyRepo;
+        private WhetstoneChatGPTService _chatGPTService;        
+        private LiveChatManager _liveChatManager = new LiveChatManager();
+        private List<string> _chatInputList = new List<string>();
+        private int _chatInputListIndex = -1;
 
-        public ChatViewModel(WhetstoneChatGPTService chatGPTService)
-        {
+        public LiveChatViewModel(IHistoryRepo historyRepo, WhetstoneChatGPTService chatGPTService)
+        {            
+            _historyRepo = historyRepo;
             _chatGPTService = chatGPTService;
-            _chatHistory = new ChatHistory();
-            _selectedChat = _chatHistory.AddNewChat();
-            ChatList = new ObservableCollection<Chat>(_chatHistory.ChatList);
-            _chatInputList = new List<string>();
-            _chatInputListIndex = -1;
-            _chatInput = "What's the latest as of 2024 on ML.NET?";
-            // TODO: hard-code your default language here
-            _selectedLang = LangList[3];
+            SelectedChat = _liveChatManager.AddNewChat();
+            ChatList = new ObservableCollection<Chat>(_liveChatManager.ChatList);
+            ChatInput = "Please list top 5 ChatGPT prompts";
 
-            // <Version>1.3</Version> in .csproj
-            Version appVer = Assembly.GetExecutingAssembly().GetName().Version!;
-            Version dotnetVer = Environment.Version;
-            AppTitle = $"C# WPF ChatGPT v{appVer.Major}.{appVer.Minor} (.NET {dotnetVer.Major}.{dotnetVer.Minor}.{dotnetVer.Build} runtime) by Peter Sun";
-#if DEBUG
-            AppTitle += " - DEBUG";
-#endif
+            // Uncomment this to insert testing data
+            // DevDebugInitialize();
         }
 
-        public string AppTitle { get; }
         public Action<UpdateUIEnum>? UpdateUIAction { get; set; }
         public bool IsCommandNotBusy => !IsCommandBusy;
         [ObservableProperty]
-        private bool _isCommandBusy;
-        [ObservableProperty]
-        private bool _isSendCommandBusy;
-        // Wrap _chatHistory.ChatList
+        private bool _isCommandBusy;        
         public ObservableCollection<Chat> ChatList { get; }
         [ObservableProperty]
         private Chat _selectedChat;
         [ObservableProperty]
         private string _chatInput;
-        [ObservableProperty]
-        private string _chatResult = string.Empty;
-        [ObservableProperty]
-        private Message? _selectedMessage;
         [ObservableProperty]
         private Visibility _imagePaneVisibility = Visibility.Collapsed;
         [ObservableProperty]
@@ -70,10 +54,12 @@ namespace CSharpWpfChatGPT
         [ObservableProperty]
         public byte[]? _resultImage;
         [ObservableProperty]
+        public bool _addToHistoryButtonEnabled;
+        [ObservableProperty]
         private bool _isStreamingMode = true;
         public string[] LangList { get; } = { "English", "Chinese", "Hindi", "Spanish" };
         [ObservableProperty]
-        public string _selectedLang;
+        public string _selectedLang = "Spanish";
         [ObservableProperty]
         bool _isFemaleVoice = true;
         [ObservableProperty]
@@ -81,12 +67,12 @@ namespace CSharpWpfChatGPT
 
         // Also RelayCommand from AppBar
         [RelayCommand]
-        public void NewChat()
+        private void NewChat()
         {
             try
             {
                 if (!AddNewChatIfNotExists())
-                {                    
+                {
                     StatusMessage = "'New Chat' already exists";
                     return;
                 }
@@ -100,16 +86,38 @@ namespace CSharpWpfChatGPT
                 StatusMessage = ex.Message;
             }
         }
+        
+        private void DevDebugInitialize()
+        {
+            string prompt = "TestPrompt1";
+            string promptDisplay = prompt;
+            var newMessage = new Message("Me", promptDisplay);
+            SelectedChat.AddMessage(newMessage);
+            string result = "TestPrompt1 result";
+            SelectedChat.AddMessage("Bot", result.Replace("Bot: ", string.Empty));
+            PostProcessOnSend(prompt);
+
+            Chat newChat = _liveChatManager.AddNewChat();
+            ChatList.Add(newChat);
+            SelectedChat = newChat;
+            prompt = "TestPrompt2";
+            promptDisplay = prompt;
+            newMessage = new Message("Me", promptDisplay);
+            SelectedChat.AddMessage(newMessage);
+            result = "TestPrompt2 result";
+            SelectedChat.AddMessage("Bot", result.Replace("Bot: ", string.Empty));
+            PostProcessOnSend(prompt);
+        }
 
         private bool AddNewChatIfNotExists()
         {
-            if (_chatHistory.NewChatExists)
+            if (_liveChatManager.NewChatExists)
             {
                 return false;
             }
 
             // Note: 'New Chat' will be renamed after it's used
-            Chat newChat = _chatHistory.AddNewChat();
+            Chat newChat = _liveChatManager.AddNewChat();
             ChatList.Add(newChat);
             SelectedChat = newChat;
             return true;
@@ -160,38 +168,25 @@ namespace CSharpWpfChatGPT
             }
         }
 
-        public void CopyChatPrompt(Chat chat)
+        [RelayCommand]
+        private void AddToHistory(Chat chat)
         {
-            try
-            {
-                Clipboard.SetText(chat.Name);
-                StatusMessage = "Chat prompt copied to clipboard";
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = ex.Message;
-            }
+            _historyRepo.AddChat(chat);
+            FixupChatId(chat);
+
+            // Add chat to HistoryViewModel
+            WeakReferenceMessenger.Default.Send(new AddChatMessage(chat));            
+
+            StatusMessage = $"'{chat.Name}' (PK: {chat.Id}) added to History tab";
         }
 
-        public void DeleteChat(Chat chat)
+        // If DB is configured, chat.Id will be PK (i.e. DB insert already called)    
+        private void FixupChatId(Chat chat)
         {
-            try
+            if (chat.Id == 0)
             {
-                // Works for deleting last one too
-                _chatHistory.DeleteChat(chat.Name);
-                ChatList.Remove(chat);
-                if (_chatHistory.ChatList.IsEmpty())
-                {
-                    Chat newChat = _chatHistory.AddNewChat();
-                    ChatList.Add(newChat);
-                }
-                SelectedChat = ChatList[0];
-
-                StatusMessage = "Deleted the chat and selected the first chat in the list";
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = ex.Message;
+                // DB not configured, assign a max + 1
+                chat.Id = ChatList.Count == 0 ? 1 : ChatList.Max(x => x.Id) + 1;
             }
         }
 
@@ -209,20 +204,6 @@ namespace CSharpWpfChatGPT
             {
                 Clipboard.SetText($"Me: {message.Text}");
                 StatusMessage = "Me message copied to clipboard";
-            }
-        }
-
-        [RelayCommand]
-        public void DeleteMessage(Message message)
-        {
-            try
-            {
-                SelectedChat.MessageList.Remove(message);
-                StatusMessage = "Message deleted";
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = ex.Message;
             }
         }
 
@@ -333,13 +314,14 @@ namespace CSharpWpfChatGPT
             {
                 SetCommandBusy(true);
 
+                // Note: need to have voices installedL: Win-Key + I, Time & language -> Speech
                 var synthesizer = new SpeechSynthesizer()
                 {
                     Volume = 100,  // 0...100
                     Rate = -2,     // -10...10                    
                 };
 
-                synthesizer.SelectVoiceByHints(IsFemaleVoice ? VoiceGender.Female : VoiceGender.Male, VoiceAge.Adult);
+                synthesizer.SelectVoiceByHints(IsFemaleVoice ? VoiceGender.Female : VoiceGender.Male, VoiceAge.Adult);                
 
                 // Asynchronous / Synchronous
                 synthesizer.SpeakAsync(ChatInput);
@@ -375,7 +357,7 @@ namespace CSharpWpfChatGPT
             string previousPrompts = string.Empty;
             if (!SelectedChat.IsSend)
             {
-                // We are be on 'Explain' or 'Translate to', so auto-create a new chat
+                // We are on 'Explain' or 'Translate to', so auto-create a new chat
                 AddNewChatIfNotExists();
             }
             else if (SelectedChat.MessageList.IsNotEmpty())
@@ -391,7 +373,7 @@ namespace CSharpWpfChatGPT
 
         private async Task Send(string prompt, string promptDisplay)
         {
-            var newMessage = new Message("Me", promptDisplay, isSenderBot: false);
+            var newMessage = new Message("Me", promptDisplay);
             SelectedChat.AddMessage(newMessage);
 
             StatusMessage = "Talking to ChatGPT API...please wait";
@@ -437,13 +419,15 @@ namespace CSharpWpfChatGPT
         private void PostProcessOnSend(string prompt)
         {
             // Handle new chat
-            if (_chatHistory.IsNewChat(SelectedChat.Name))
+            if (_liveChatManager.IsNewChat(SelectedChat.Name))
             {
                 // After this call, SelectedChat.Name updated on the left panel because SelectedChat is/wraps the new chat                
-                _chatHistory.RenameNewChat(prompt);
+                _liveChatManager.RenameNewChat(prompt);
+
+                UpdateAddToHistoryButton(SelectedChat);
             }
 
-            // Handle chat input list / history
+            // Handle chat input list
             if (!_chatInputList.Any(x => x.Equals(prompt)))
             {
                 _chatInputList.Add(prompt);
@@ -509,32 +493,27 @@ namespace CSharpWpfChatGPT
             IsCommandBusy = isCommandBusy;
             OnPropertyChanged(nameof(IsCommandNotBusy));
 
-            if (isSendCommand)
+            if (!isSendCommand)
             {
-                // Do not change mouse cursor for Send command
-                IsSendCommandBusy = isCommandBusy;
-            }
-            else
-            {
-                if (IsCommandBusy)
-                {
-                    Mouse.OverrideCursor = Cursors.Wait;
-                }
-                else
-                {
-                    Mouse.OverrideCursor = null;
-                }
+                Mouse.OverrideCursor = IsCommandBusy ? Cursors.Wait : null;
             }
         }
 
         // partial method (CommunityToolkit MVVM)
         partial void OnSelectedChatChanged(Chat value)
         {
+            UpdateAddToHistoryButton(value);
+
             if (value != null)
             {
                 // Re-setup on selected chat changed
-                UpdateUIAction?.Invoke(UpdateUIEnum.SetupMessageListViewScrollViewer);
-            }
+                UpdateUIAction?.Invoke(UpdateUIEnum.SetupMessageListViewScrollViewer);                
+            }            
+        }
+
+        private void UpdateAddToHistoryButton(Chat value)
+        {
+            AddToHistoryButtonEnabled = value != null && !_liveChatManager.IsNewChat(value.Name);
         }
     }
 }

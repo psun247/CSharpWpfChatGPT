@@ -1,0 +1,136 @@
+﻿<UserControl x:Class="CSharpWpfChatGPT.History.HistoryUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ui="http://schemas.modernwpf.com/2019"             
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <!-- Header section -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="45"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <!--Without MaxWidth, the right colmn could be hidden when left column stretched-->
+            <ColumnDefinition Width="240" MinWidth="200" MaxWidth="400" />
+            <ColumnDefinition Width="*" MinWidth="100" />
+        </Grid.ColumnDefinitions>
+
+        <!--Top app bar area-->
+        <Border Grid.Row="0" Grid.ColumnSpan="2" BorderThickness="0">
+            <ui:SimpleStackPanel Orientation="Horizontal" Background="#19000000">
+                <TextBlock Text="{Binding DBConfigInfo, Mode=OneWay}" FontSize="20"
+                            HorizontalAlignment="Left" VerticalAlignment="Center" 
+                            Foreground="#FF0078D4" Margin="10,0,0,0" />
+            </ui:SimpleStackPanel>
+        </Border>
+
+        <!--Chat list-->
+        <ui:ListView x:Name="ChatListView" Grid.Row="1" Grid.Column="0"
+                ItemsSource="{Binding ChatList}" SelectedItem="{Binding SelectedChat}"
+                Background="DarkGray" BorderBrush="LightGray" BorderThickness="0,1" SelectionMode="Single" 
+                ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.CanContentScroll="True"
+                Margin="0,0,0,0">
+            <ui:ListView.ItemContainerStyle>
+                <Style TargetType="ui:ListViewItem">
+                    <!--https://stackoverflow.com/questions/16832725/making-a-grid-in-a-listview-itemtemplate-fill-->
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                            <Setter Property="Background" Value="#FFF1F1F1" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ui:ListView.ItemContainerStyle>
+            <ui:ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="40" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="{Binding Name, Mode=OneWay}" TextWrapping="Wrap" FontSize="18" 
+                                Margin="5,5,0,5" />
+                        <DockPanel Grid.Column="1">
+                            <Button  HorizontalAlignment="Right"
+                                Command="{Binding DataContext.DeleteHistoryChatCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}" 
+                                CommandParameter="{Binding .}" ToolTip="Delete history chat from UI and DB (if configured)"
+                                Background="Transparent" Margin="0,0,0,0" >
+                                <ui:SymbolIcon Symbol="Delete" />
+                            </Button>
+                        </DockPanel>
+                    </Grid>
+                </DataTemplate>
+            </ui:ListView.ItemTemplate>
+        </ui:ListView>
+
+        <!--Selected chat's message list-->
+        <!--Without VirtualizingPanel.ScrollUnit="Pixel", the last row doesn't seem to be fully visible-->
+        <ui:ListView x:Name="MessageListView" Grid.Row="1" Grid.Column="1"
+                ItemsSource="{Binding SelectedChat.MessageList}" AlternationCount="2"
+                Background="#08000000" BorderBrush="LightGray" BorderThickness="0,1" SelectionMode="Single" 
+                ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.CanContentScroll="True" 
+                VirtualizingPanel.ScrollUnit="Pixel" Margin="0,2,5,0">
+            <ui:ListView.ItemContainerStyle>
+                <Style TargetType="ui:ListViewItem">
+                    <!--Disable selection: https://stackoverflow.com/questions/1051215/wpf-listview-turn-off-selection-->
+                    <Setter Property="Focusable" Value="False"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                        </Trigger>
+                        <!--RichTextBox Background="Transparent" below needed to look smooth-->
+                        <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                            <Setter Property="Background" Value="#0F000000"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ui:ListView.ItemContainerStyle>
+            <ui:ListView.ItemTemplate>
+                <DataTemplate>
+                    <!--Need Grid (not StackPanel) for TextBlock to wrap-->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel>
+                            <TextBlock Text="{Binding Sender}" FontSize="16" FontWeight="Bold"
+                                VerticalAlignment="Top" Margin="0,8,0,5"/>
+                            <Button Command="{Binding DataContext.CopyMessageCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}" 
+                                    CommandParameter="{Binding .}" ToolTip="Copy Me and Bot messages to clipboard" Visibility="{Binding CopyButtonVisibility}"
+                                    Background="Transparent" Margin="-8,0,0,0" >
+                                <ui:SymbolIcon Symbol="Copy" />
+                            </Button>
+                        </StackPanel>
+                        <!--RichTextBox allows copying selection in the RichTextBox control-->
+                        <RichTextBox Grid.Column="1" Background="Transparent" BorderThickness="0" IsReadOnly="True" Margin="0,0,5,2">
+                            <FlowDocument>
+                                <Paragraph>
+                                    <Run Text="{Binding Text}" FontSize="20" FontWeight="Normal"/>
+                                </Paragraph>
+                            </FlowDocument>
+                        </RichTextBox>
+                    </Grid>
+                </DataTemplate>
+            </ui:ListView.ItemTemplate>
+        </ui:ListView>
+
+        <!--Vertical splitter between the 2 lists-->
+        <GridSplitter Grid.Row="1" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Right" Width="6" 
+                        Background="LightGray" Margin="0,0,0,0"/>
+
+        <!--StatusMessage-->
+        <Border Grid.Row="2" Grid.ColumnSpan="2" BorderBrush="Gray" BorderThickness="0,1,0,0" Background="#19000000" 
+                Margin="0,3,0,0">
+            <TextBlock Text="{Binding StatusMessage}" ToolTip="{Binding StatusMessage}" FontSize="18"
+                        FontWeight="SemiBold" Margin="10,5,0,0" />
+        </Border>
+    </Grid>
+</UserControl>

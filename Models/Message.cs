@@ -10,13 +10,13 @@ namespace CSharpWpfChatGPT.Models
         [ObservableProperty]
         private string _text = string.Empty;
         
-        public Visibility CopyDeleteButtonVisibility { get; set; }
+        public Visibility CopyButtonVisibility { get; set; }
 
-        public Message(string sender, string text, bool isSenderBot)
+        public Message(string sender, string text)
         {
             Sender = sender;
-            Text = text;
-            CopyDeleteButtonVisibility = isSenderBot ? Visibility.Visible : Visibility.Collapsed;
+            Text = text;            
+            CopyButtonVisibility = Sender == "Bot" ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }

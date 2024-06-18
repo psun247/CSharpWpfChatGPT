@@ -22,6 +22,21 @@
                 <!--Avoid 'narrow' vertical scrollbar.-->
                 <Setter Property="ui:ScrollViewerHelper.AutoHideScrollBars" Value="False" />
             </Style>
+            <Style TargetType="TabItem" BasedOn="{StaticResource DefaultTabItemStyle}">
+                <!--Note: FontFamily affect all under a tab. Got "Cascadia Mono Light" from comment section in https://www.youtube.com/watch?v=Hf9HQVPinqQ-->
+                <Setter Property="FontFamily" Value="Consolas Light" />
+                <Setter Property="FontSize" Value="18" />
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        
+                    </Trigger>
+                    <Trigger Property="IsSelected" Value="False">
+                        <Setter Property="FontWeight" Value="Normal" />
+                        
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
