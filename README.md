@@ -5,7 +5,7 @@ https://www.codeproject.com/Tips/5377103/ChatGPT-API-in-Csharp-WPF-XAML-MVVM
 https://github.com/psun247
 
 # ChatGPT API in C# WPF / XAML / MVVM
-C# WPF app that communicates with OpenAI GPT-3.5 Turbo API (added History tab and SQL Server support on 2024/06/17)
+C# WPF app that communicates with OpenAI GPT-4 / GPT-3.5 Turbo (plus now added History tab and SQL Server support)
 
 ![Screenshot1](https://github.com/psun247/CSharpWpfChatGPT/assets/31531761/93cd7b42-2b38-492c-9659-e07e5d6b0a13)
 
