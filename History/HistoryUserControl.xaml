@@ -11,7 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="45"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <!--Without MaxWidth, the right colmn could be hidden when left column stretched-->
@@ -129,8 +129,8 @@
         <!--StatusMessage-->
         <Border Grid.Row="2" Grid.ColumnSpan="2" BorderBrush="Gray" BorderThickness="0,1,0,0" Background="#19000000" 
                 Margin="0,3,0,0">
-            <TextBlock Text="{Binding StatusMessage}" ToolTip="{Binding StatusMessage}" FontSize="18"
-                        FontWeight="SemiBold" Margin="10,5,0,0" />
+            <TextBlock Text="{Binding StatusMessage}" ToolTip="{Binding StatusMessage}" TextWrapping="Wrap" FontSize="18"
+                        FontWeight="SemiBold" Margin="10,5,0,5" />
         </Border>
     </Grid>
 </UserControl>
