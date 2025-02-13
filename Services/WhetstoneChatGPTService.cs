@@ -20,7 +20,7 @@ namespace CSharpWpfChatGPT.Services
         {
             var gptRequest = new ChatGPTChatCompletionRequest
             {
-                Model = ChatGPT35Models.Turbo,
+                Model = ChatGPT4Models.GPT4, // ChatGPT35Models.Turbo,
                 Messages = new List<ChatGPTChatCompletionMessage>()
                 {
                     new ChatGPTChatCompletionMessage()
@@ -45,7 +45,7 @@ namespace CSharpWpfChatGPT.Services
         {
             var completionRequest = new ChatGPTChatCompletionRequest
             {
-                Model = ChatGPT35Models.Turbo,
+                Model = ChatGPT4Models.GPT4, //ChatGPT35Models.Turbo,
                 Messages = new List<ChatGPTChatCompletionMessage>()
                 {
                     new ChatGPTChatCompletionMessage()

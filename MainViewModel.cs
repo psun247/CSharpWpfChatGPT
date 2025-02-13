@@ -16,7 +16,8 @@ namespace CSharpWpfChatGPT
             // <Version>1.3</Version> in .csproj
             Version appVer = Assembly.GetExecutingAssembly().GetName().Version!;
             Version dotnetVer = Environment.Version;
-            AppTitle = $"C# WPF ChatGPT v{appVer.Major}.{appVer.Minor} (.NET {dotnetVer.Major}.{dotnetVer.Minor}.{dotnetVer.Build} runtime) by Peter Sun";
+            AppTitle = $"C# WPF ChatGPT v{appVer.Major}.{appVer.Minor} (.NET {dotnetVer.Major}.{dotnetVer.Minor}.{dotnetVer.Build} runtime) " +
+                        $"'{historyRepo.DBConfigInfo}' by Peter Sun";
 #if DEBUG
             AppTitle += " - DEBUG";
 #endif            

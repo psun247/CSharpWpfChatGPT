@@ -32,7 +32,7 @@ namespace CSharpWpfChatGPT.LiveChat
             _chatGPTService = chatGPTService;
             SelectedChat = _liveChatManager.AddNewChat();
             ChatList = new ObservableCollection<Chat>(_liveChatManager.ChatList);
-            ChatInput = "Please list top 5 ChatGPT prompts";
+            ChatInput = "Tell me a ChatGPT joke";
 
             // Uncomment this to insert testing data
             // DevDebugInitialize();
